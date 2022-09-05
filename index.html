@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kunci Nasa</title>
+</head>
+<body>
+  <div class="container center">
+    <button id="button">Picture of the day</button>
+    <h2 id="loading1">Loading...</h2>
+    <h2 id="title"></h2>
+    <p id="desc"></p>
+    <img id="image" width="40%" src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.pngkey.com%2Fpng%2Fdetail%2F233-2332677_image-500580-placeholder-transparent.png&f=1&nofb=1">
+    <form id="form" class="form">
+      <input id="input" class="input" placeholder="Search here..." />
+    </form>
+    <h2 id="loading2">Loading...</h2>
+    <h2 id="query"></h2>
+    <img id="imagequery" width="30%" src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.pngkey.com%2Fpng%2Fdetail%2F233-2332677_image-500580-placeholder-transparent.png&f=1&nofb=1">
+    <p id="credit"></p>
+  </div>
+  <script>
+    const NASA_KEY = "DEMO_KEY";
+    const BASE_URL = "https://api.nasa.gov";
+
+    function handleSubmit(e) {
+      e.preventDefault();
+      const input = document.getElementById("input");
+      const queryTitle = document.getElementById("query");
+      const q = input.value;
+      queryTitle.innerHTML = q;
+      input.value = "";
+      
+      const LIBRARY = "https://images-api.nasa.gov";
+      const endpoint = "/search";
+      const query = `?q=${q}`;
+      const URL = `${LIBRARY}${endpoint}${query}`;
+
+      document.getElementById("loading2").style = "display: block";
+      fetch(URL)
+        .then((response) => response.json())
+        .then((data) => {
+          const collections = data.collection.items;
+          let randomIndex = -1;
+          let linkIndex = -1;
+          if (collections.length === 0) {
+            document.getElementById("loading2").style = "display: none";
+            return;
+          }
+          while (linkIndex < 0) {
+            randomIndex = Math.floor(Math.random() * (collections.length - 1));
+            if (collections[randomIndex].links && collections[randomIndex].links.length > 0) {
+              linkIndex = Math.floor(Math.random() * (collections[randomIndex].links.length - 1))
+            }
+          }
+          document.getElementById("loading2").style = "display: none";
+          document.getElementById("imagequery").src = collections[randomIndex].links[linkIndex].href;
+          document.getElementById("credit").innerHTML = collections[randomIndex].data[0].title;
+        })
+    }
+
+    function handleAPOD(e) {
+      e.preventDefault();
+      const APOD = `${BASE_URL}/planetary/apod?api_key=${NASA_KEY}`;
+      
+      document.getElementById("loading1").style = "display: block";
+      fetch(APOD)
+        .then((response) => response.json())
+        .then((data) => {
+          document.getElementById("loading1").style = "display: none";
+          document.getElementById("image").src = data.url;
+          document.getElementById("title").innerHTML = data.title;
+          document.getElementById("desc").innerHTML = data.explanation;
+        })
+    }
+    
+    function main() {
+      document.getElementById("loading1").style = "display: none";
+      document.getElementById("loading2").style = "display: none";
+      console.log("ready");
+    }
+
+    document.getElementById("form").addEventListener("submit", handleSubmit);
+    document.getElementById("button").addEventListener("click", handleAPOD);
+
+    // load on document ready
+    document.addEventListener("DOMContentLoaded", main);  
+  </script>
+</body>
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  .container {
+    width: 100%!important;
+    display: flex;
+    flex-direction: column;
+    padding: 150px;
+    box-sizing: border-box;
+  }
+  .center {
+    align-items: center;
+  }
+  .form {
+    margin: 20px 0;
+  }
+  #button {
+    background-color: lightblue;
+    border-color: lightcyan;
+    padding: 20px;
+    border-radius: 5px;
+    color: black;
+    shadow: none;
+  }
+  #button:hover {
+    background-color: lightcyan;
+    border-color: lightcyan;
+  }
+</style>
+</html>
